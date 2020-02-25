@@ -106,7 +106,13 @@ class KNearestNeighbor(object):
             #######################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            test_sample = X[i,:] # take a sample from test matrix
+
+            sub_pow_matrix = (self.X_train - test_sample)**2
+            
+            sum_vec = np.sqrt(np.sum(sub_pow_matrix, axis=1))
+            
+            dists[i,:] = sum_vec
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
