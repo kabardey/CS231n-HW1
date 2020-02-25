@@ -79,19 +79,10 @@ class KNearestNeighbor(object):
                 
                 train_sample = self.X_train[j,:] # take a sample from train matrix
                 test_sample = X[i,:] # take a sample from test matrix
-                
-                # calculate euclidian distance
-                #print("train_sample.shape: ", train_sample)
-                #print("test_sample.shape: ", test_sample)
-                #print((train_sample-test_sample))
-                #print((train_sample - test_sample) ** 2)
       
                 sub_pow = (train_sample - test_sample) ** 2 # subtract and apply power of 2 as element wise 
-                #print("sub_pow: ", sub_pow)
                 sum_num = np.sqrt(np.sum(sub_pow))
-                #print("sum_num: ", np.sqrt(sum_num))
                 dists[i,j] = sum_num
-
 
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -178,7 +169,14 @@ class KNearestNeighbor(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            test_dist_sample = dists[i,:] 
+            
+            # sort the vector min to max according to indices
+            indexes = np.argsort(test_dist_sample)
+            
+            # find the corresponding label with k nearest neighbors
+            labels = self.y_train[indexes[:k]]
+            closest_y = labels
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             #########################################################################
@@ -190,7 +188,7 @@ class KNearestNeighbor(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            y_pred[i] = np.bincount(np.array(closest_y)).argmax()
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
