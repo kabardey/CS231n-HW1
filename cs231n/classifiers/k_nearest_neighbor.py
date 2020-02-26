@@ -142,7 +142,13 @@ class KNearestNeighbor(object):
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        # expand the L2 distance formula
+        A = np.sum(X ** 2, axis=1)
+        B = np.sum(self.X_train ** 2, axis=1)
+        
+        C = -2 * (np.dot(X, (self.X_train).transpose()))  
+                  
+        dists = np.sqrt(A[:, np.newaxis] + B[np.newaxis, :] + C)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
