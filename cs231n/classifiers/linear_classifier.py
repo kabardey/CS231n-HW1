@@ -1,139 +1,134 @@
-from __future__ import print_function
-
 from builtins import range
-from builtins import object
 import numpy as np
-from cs231n.classifiers.linear_svm import *
-from cs231n.classifiers.softmax import *
+from random import shuffle
 from past.builtins import xrange
 
+def svm_loss_naive(W, X, y, reg):
+    """
+    Structured SVM loss function, naive implementation (with loops).
 
-class LinearClassifier(object):
+    Inputs have dimension D, there are C classes, and we operate on minibatches
+    of N examples.
 
-    def __init__(self):
-        self.W = None
+    Inputs:
+    - W: A numpy array of shape (D, C) containing weights.
+    - X: A numpy array of shape (N, D) containing a minibatch of data.
+    - y: A numpy array of shape (N,) containing training labels; y[i] = c means
+      that X[i] has label c, where 0 <= c < C.
+    - reg: (float) regularization strength
 
-    def train(self, X, y, learning_rate=1e-3, reg=1e-5, num_iters=100,
-              batch_size=200, verbose=False):
-        """
-        Train this linear classifier using stochastic gradient descent.
+    Returns a tuple of:
+    - loss as single float
+    - gradient with respect to weights W; an array of same shape as W
+    """
 
-        Inputs:
-        - X: A numpy array of shape (N, D) containing training data; there are N
-          training samples each of dimension D.
-        - y: A numpy array of shape (N,) containing training labels; y[i] = c
-          means that X[i] has label 0 <= c < C for C classes.
-        - learning_rate: (float) learning rate for optimization.
-        - reg: (float) regularization strength.
-        - num_iters: (integer) number of steps to take when optimizing
-        - batch_size: (integer) number of training examples to use at each step.
-        - verbose: (boolean) If true, print progress during optimization.
+    #############################################################################
+    # TODO:                                                                     #
+    # Compute the gradient of the loss function and store it dW.                #
+    # Rather that first computing the loss and then computing the derivative,   #
+    # it may be simpler to compute the derivative at the same time that the     #
+    # loss is being computed. As a result you may need to modify some of the    #
+    # code above to compute the gradient.                                       #
+    #############################################################################
+    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    
+    dW = np.zeros(W.shape) # initialize the gradient as zero
 
-        Outputs:
-        A list containing the value of the loss function at each training iteration.
-        """
-        num_train, dim = X.shape
-        num_classes = np.max(y) + 1 # assume y takes values 0...K-1 where K is number of classes
-        if self.W is None:
-            # lazily initialize W
-            self.W = 0.001 * np.random.randn(dim, num_classes)
+    # compute the loss and the gradient
+    num_classes = W.shape[1]
+    num_train = X.shape[0]
+    loss = 0.0
+    for i in range(num_train):
+        
+        scores = X[i].dot(W)
+        correct_class_score = scores[y[i]]
+        
+        for j in range(num_classes):
+            if j == y[i]:
+                continue
+            margin = scores[j] - correct_class_score + 1 # note delta = 1
+            if margin > 0:
+                loss += margin
+                
+                # if margin is greater than 0 this means that the true label is 
+                # misclassified and we should update the gradient
+                # extract the input (X[i]) from corresponding true labels' derivative values
+                # to update new derivative
+                dW[:, y[i]] -= X[i]
+                
+                # update the derivatives of wrong classes which have lower loss than the true class'
+                # loss by adding the input image
+                dW[:, j] += X[i] 
+                
+    # Right now the loss is a sum over all training examples, but we want it
+    # to be an average instead so we divide by num_train.
+    loss /= num_train
+    
+    # also, take the average of derivatives 
+    dW /= num_train
 
-        # Run stochastic gradient descent to optimize W
-        loss_history = []
-        for it in range(num_iters):
-            X_batch = None
-            y_batch = None
-
-            #########################################################################
-            # TODO:                                                                 #
-            # Sample batch_size elements from the training data and their           #
-            # corresponding labels to use in this round of gradient descent.        #
-            # Store the data in X_batch and their corresponding labels in           #
-            # y_batch; after sampling X_batch should have shape (batch_size, dim)   #
-            # and y_batch should have shape (batch_size,)                           #
-            #                                                                       #
-            # Hint: Use np.random.choice to generate indices. Sampling with         #
-            # replacement is faster than sampling without replacement.              #
-            #########################################################################
-            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            pass
-
-            # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            # evaluate loss and gradient
-            loss, grad = self.loss(X_batch, y_batch, reg)
-            loss_history.append(loss)
-
-            # perform parameter update
-            #########################################################################
-            # TODO:                                                                 #
-            # Update the weights using the gradient and the learning rate.          #
-            #########################################################################
-            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            pass
-
-            # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            if verbose and it % 100 == 0:
-                print('iteration %d / %d: loss %f' % (it, num_iters, loss))
-
-        return loss_history
-
-    def predict(self, X):
-        """
-        Use the trained weights of this linear classifier to predict labels for
-        data points.
-
-        Inputs:
-        - X: A numpy array of shape (N, D) containing training data; there are N
-          training samples each of dimension D.
-
-        Returns:
-        - y_pred: Predicted labels for the data in X. y_pred is a 1-dimensional
-          array of length N, and each element is an integer giving the predicted
-          class.
-        """
-        y_pred = np.zeros(X.shape[0])
-        ###########################################################################
-        # TODO:                                                                   #
-        # Implement this method. Store the predicted labels in y_pred.            #
-        ###########################################################################
-        # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
-
-        # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        return y_pred
-
-    def loss(self, X_batch, y_batch, reg):
-        """
-        Compute the loss function and its derivative.
-        Subclasses will override this.
-
-        Inputs:
-        - X_batch: A numpy array of shape (N, D) containing a minibatch of N
-          data points; each point has dimension D.
-        - y_batch: A numpy array of shape (N,) containing labels for the minibatch.
-        - reg: (float) regularization strength.
-
-        Returns: A tuple containing:
-        - loss as a single float
-        - gradient with respect to self.W; an array of the same shape as W
-        """
-        pass
+    # Add regularization to the loss.
+    loss += reg * np.sum(W * W)
+    
+    # add regularization to also gradient vector
+    dW += reg * W
+    
+    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    return loss, dW
 
 
-class LinearSVM(LinearClassifier):
-    """ A subclass that uses the Multiclass SVM loss function """
+def svm_loss_vectorized(W, X, y, reg):
+    """
+    Structured SVM loss function, vectorized implementation.
 
-    def loss(self, X_batch, y_batch, reg):
-        return svm_loss_vectorized(self.W, X_batch, y_batch, reg)
+    Inputs and outputs are the same as svm_loss_naive.
+    """
+    loss = 0.0
+    num_train = X.shape[0]
+    dW = np.zeros(W.shape) # initialize the gradient as zero
 
+    #############################################################################
+    # TODO:                                                                     #
+    # Implement a vectorized version of the structured SVM loss, storing the    #
+    # result in loss.                                                           #
+    #############################################################################
+    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-class Softmax(LinearClassifier):
-    """ A subclass that uses the Softmax + Cross-entropy loss function """
+    score_matrix = X.dot(W)
+    
+    true_labels_idx = (range(0, num_train), y)
+    true_label_scores = score_matrix[true_labels_idx]
 
-    def loss(self, X_batch, y_batch, reg):
-        return softmax_loss_vectorized(self.W, X_batch, y_batch, reg)
+    score_matrix -= true_label_scores[:, np.newaxis]
+    score_matrix += 1
+    score_matrix[score_matrix < 0] = 0    
+
+    sum_all = np.sum(score_matrix) - num_train
+    loss = sum_all / num_train
+    
+    loss += reg * np.sum(W * W)
+    
+ 
+    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    #############################################################################
+    # TODO:                                                                     #
+    # Implement a vectorized version of the gradient for the structured SVM     #
+    # loss, storing the result in dW.                                           #
+    #                                                                           #
+    # Hint: Instead of computing the gradient from scratch, it may be easier    #
+    # to reuse some of the intermediate values that you used to compute the     #
+    # loss.                                                                     #
+    #############################################################################
+    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    score_matrix[score_matrix > 0] = 1
+    number_of_wrong_classes = np.sum(score_matrix, axis=1)
+    
+    score_matrix[true_labels_idx] -= number_of_wrong_classes
+    
+    dW = X.T.dot(score_matrix) / num_train
+    dW += reg * W
+
+    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    return loss, dW
