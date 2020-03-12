@@ -80,8 +80,14 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
-
+        # forward pass is z = X*W + b (bias)  -> g(z) (activation function)
+        z1 = np.dot(X, W1) + b1
+               
+        g_z1 = z1.copy()
+        g_z1[g_z1 < 0] = 0 # ReLu activation function
+        
+        z2 = np.dot(g_z1, W2) + b2
+        scores = z2
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         # If the targets are not given then jump out, we're done
