@@ -103,8 +103,18 @@ class TwoLayerNet(object):
         # classifier loss.                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        pass
+        
+        # calculate softmax function
+        scores -= np.max(scores)
+        score_exp = np.exp(scores)
+        score_sum = np.sum(score_exp, axis=1) 
+        score_softmax = score_exp / score_sum[:, np.newaxis]
+        
+        correct_class_position = (range(0, N), y)
+        correct_class_loss = score_softmax[correct_class_position]
+        
+        loss = np.sum(-np.log(correct_class_loss)) / N 
+        loss += reg * np.sum(W1**2) + reg * np.sum(W2**2)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
