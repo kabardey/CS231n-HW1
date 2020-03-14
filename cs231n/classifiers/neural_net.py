@@ -127,7 +127,21 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        score_softmax[correct_class_position] -= 1
+        score_softmax /= N
+        
+        grads['W2'] = np.dot(g_z1.T, score_softmax) # [HxN]*[NxC] = [HxC]
+        grads['b2'] = np.sum(score_softmax, axis=0) # [C]
+        
+        dW1 = np.dot(score_softmax, W2.T) # [NxC] * [CxH] = [NxH]
+        greater_than_zero = z1>0 # [NxH]
+        dz1 = np.multiply(dW1, greater_than_zero) # element wise multiplication [NxH]
+
+        grads['W1'] = np.dot(X.T, dz1) # [HxN] * [NxH] = [HxH]
+        grads['b1'] = np.sum(dz1, axis=0) # [H]
+        
+        grads['W1'] += 2 * reg * W1
+        grads['W2'] += 2 * reg * W2
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
